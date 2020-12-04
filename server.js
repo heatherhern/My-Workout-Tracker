@@ -24,7 +24,7 @@ db.on("error", error => {
 });
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname + "./public/index.html"));
+    res.sendFile(path.join(__dirname + "/Develop/public/index.html"));
 });
 
 app.post("/submit", (req, res) => {
