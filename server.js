@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongojs = require("mongojs");
 const express = require("express");
 // express middleware
 const logger = require("morgan");
@@ -16,7 +17,7 @@ app.use(express.static("public"));
 const databaseUrl = "workoutplan";
 const collections = ["workouts"];
 
-const db = mongoose(databaseUrl, collections);
+const db = mongojs(databaseUrl, collections);
 
 db.on("error", error => {
     console.log("Database Error:", error);
