@@ -1,92 +1,25 @@
-const mongoose = require("mongoose");
-const mongojs = require("mongojs");
 const express = require("express");
-// express middleware
-const logger = require("morgan");
-const path = require("path");
+const morgan = require("morgan");
+const mongoose = require("mongoose");
 
 const app = express();
+const PORT = process.env.PORT || 8080;
 
-app.use(logger("dev"));
+app.use(morgan("dev"));
 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended:true}));
 app.use(express.json());
+app.use(express.static('public'));
 
-app.use(express.static("public"));
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/workout";
+mongoose.connect(MONGODB_URI,{  
+    useNewUrlParser:true,
+    useFindAndModify:false
+})
 
-const databaseUrl = "workoutplan";
-const collections = ["workouts"];
+require("./routes/api.js")(app);
+require("./routes/html.js")(app);
 
-const db = mongojs(databaseUrl, collections);
-
-db.on("error", error => {
-    console.log("Database Error:", error);
-});
-
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname + "/Develop/public/index.html"));
-});
-
-app.post("/submit", (req, res) => {
-    console.log(req.body);
-
-    db.workouts.insert(req.body, (error, data) => {
-        if (error) {
-            res.send(error);
-        } else {
-            res.send(data);
-        }
-    });
-});
-
-app.get("/all", (req, res) => {
-    db.workouts.find({}, (error, data) => {
-        if (error) {
-            res.send(error);
-        } else {
-            res.json(data);
-        }
-    });
-});
-
-// app.get("/find/:id", (req, res) => {
-//     db.notes.findOne(
-//         {
-//             _id: mongojs.ObjectId(req.params.id)
-//         },
-//         (error, data) => {
-//             if (error) {
-//                 res.send(error);
-//             } else {
-//                 res.send(data);
-//             }
-//         }
-//     );
-// });
-
-// app.post("/update/:id", (req, res) => {
-//     db.notes.update(
-//         {
-//             _id: mongojs.ObjectId(req.params.id)
-//         },
-//         {
-//             $set: {
-//                 title: req.body.title,
-//                 note: req.body.note,
-//                 modified: Date.now()
-//             }
-//         },
-//         (error, data) => {
-//             if (error) {
-//                 res.send(error);
-//             } else {
-//                 res.send(data);
-//             }
-//         }
-//     );
-// });
-
-
-app.listen(3000, () => {
-    console.log("App running on port 3000!");
+app.listen(PORT,function(){ 
+    console.log(`App listening on Port ${PORT}`);
 });
